@@ -1,0 +1,26 @@
+[workspace]
+resolver = "2"
+members = ["crates/jww-core", "crates/jww-dxf", "crates/jww-wasm"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+authors = ["f4ah6o"]
+license = "AGPL-3.0"
+
+[workspace.dependencies]
+thiserror = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+
+[profile.release]
+opt-level = "z"
+lto = true
+codegen-units = 1
+panic = "abort"
+
+[profile.release-wasm]
+inherits = "release"
+opt-level = "z"
+lto = true
+codegen-units = 1
+panic = "abort"
