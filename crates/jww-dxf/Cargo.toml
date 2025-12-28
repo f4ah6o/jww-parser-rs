@@ -1,0 +1,11 @@
+[package]
+name = "jww-dxf"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+
+[dependencies]
+thiserror.workspace = true
+serde.workspace = true
+jww-core = { path = "../jww-core" }
