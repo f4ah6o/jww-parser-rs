@@ -51,7 +51,19 @@ pub fn to_string(doc: &Document) -> String {
     writeln!(output, "2").unwrap();
     writeln!(output, "LAYER").unwrap();
     writeln!(output, "70").unwrap();
-    writeln!(output, "{}", doc.layers.len()).unwrap();
+    writeln!(output, "{}", doc.layers.len() + 1).unwrap(); // +1 for required layer 0
+
+    // 必須レイヤー "0" (DXF仕様で必須)
+    writeln!(output, "0").unwrap();
+    writeln!(output, "LAYER").unwrap();
+    writeln!(output, "2").unwrap();
+    writeln!(output, "0").unwrap();
+    writeln!(output, "70").unwrap();
+    writeln!(output, "0").unwrap();
+    writeln!(output, "62").unwrap();
+    writeln!(output, "7").unwrap(); // white/black
+    writeln!(output, "6").unwrap();
+    writeln!(output, "CONTINUOUS").unwrap();
 
     for layer in &doc.layers {
         writeln!(output, "0").unwrap();

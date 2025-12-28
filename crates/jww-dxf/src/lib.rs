@@ -9,3 +9,7 @@ mod writer;
 pub use types::*;
 pub use converter::convert_document;
 pub use writer::to_string;
+
+// テスト用ユーティリティ（testing feature時のみ使用）
+#[cfg(feature = "testing")]
+pub mod testing;
