@@ -10,8 +10,7 @@ mod types;
 pub use error::{ParseError, Result};
 pub use reader::Reader;
 pub use types::{
-    Document, Entity, EntityBase, Layer, LayerGroup,
-    Line, Arc, Point, Text, Solid, Block, BlockDef,
+    Arc, Block, BlockDef, Document, Entity, EntityBase, Layer, LayerGroup, Line, Point, Solid, Text,
 };
 
 /// JWWファイルをパースする
@@ -91,8 +90,12 @@ pub fn parse(data: &[u8]) -> Result<Document> {
             layer_groups[g_lay as usize].name = format!("Group{:X}", g_lay);
         }
         for lay in 0..16 {
-            if layer_groups[g_lay as usize].layers[lay as usize].name.is_empty() {
-                layer_groups[g_lay as usize].layers[lay as usize].name = format!("{:X}-{:X}", g_lay, lay);
+            if layer_groups[g_lay as usize].layers[lay as usize]
+                .name
+                .is_empty()
+            {
+                layer_groups[g_lay as usize].layers[lay as usize].name =
+                    format!("{:X}-{:X}", g_lay, lay);
             }
         }
     }
@@ -119,7 +122,7 @@ fn find_entity_list_offset(data: &[u8], version: u32) -> Option<usize> {
             if data[i + 2] == schema_bytes[0] && data[i + 3] == schema_bytes[1] {
                 // クラス名長さを取得
                 let name_len = (data[i + 4] as u16) | ((data[i + 5] as u16) << 8);
-                if name_len >= 8 && name_len <= 20 && i + 6 + name_len as usize <= data.len() {
+                if (8..=20).contains(&name_len) && i + 6 + name_len as usize <= data.len() {
                     let class_name = &data[i + 6..i + 6 + name_len as usize];
                     if class_name.starts_with(b"CData") {
                         // 最初のエンティティクラス定義が見つかった
@@ -135,7 +138,10 @@ fn find_entity_list_offset(data: &[u8], version: u32) -> Option<usize> {
 }
 
 /// エンティティリストをパースする
-fn parse_entity_list<R: std::io::Read>(reader: &mut Reader<R>, version: u32) -> Result<Vec<Entity>> {
+fn parse_entity_list<R: std::io::Read>(
+    reader: &mut Reader<R>,
+    version: u32,
+) -> Result<Vec<Entity>> {
     let count = reader.read_word()? as u32;
 
     let mut entities = Vec::with_capacity(count as usize);

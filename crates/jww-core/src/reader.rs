@@ -1,6 +1,6 @@
-use std::io::Read;
-use byteorder::{LittleEndian, ReadBytesExt};
 use crate::error::{ParseError, Result};
+use byteorder::{LittleEndian, ReadBytesExt};
+use std::io::Read;
 
 /// JWWバイナリデータリーダー
 ///

@@ -123,11 +123,9 @@ pub fn parse_dxf_entities(dxf_content: &str) -> (Vec<DxfEntity>, Vec<String>) {
         }
 
         // LAYERデータの収集（"  0"の次が"LAYER"の場合のみ）
-        if in_layer_table && line == "0" {
-            if i + 1 < lines.len() && lines[i + 1].trim() == "LAYER" {
-                if let Some(layer_name) = find_next_group_value(&lines, i + 1, "2") {
-                    layers.push(layer_name);
-                }
+        if in_layer_table && line == "0" && i + 1 < lines.len() && lines[i + 1].trim() == "LAYER" {
+            if let Some(layer_name) = find_next_group_value(&lines, i + 1, "2") {
+                layers.push(layer_name);
             }
         }
 
@@ -175,13 +173,13 @@ fn parse_entity_at(lines: &[&str], start: usize) -> Option<DxfEntity> {
 
                 // 重要なプロパティを保存
                 match group_code {
-                    8 => layer = value.to_string(),  // レイヤー
+                    8 => layer = value.to_string(), // レイヤー
                     62 => {
                         if let Ok(c) = value.parse::<i32>() {
                             color = c;
                         }
-                    }  // 色
-                    6 => line_type = value.to_string(),  // 線種
+                    } // 色
+                    6 => line_type = value.to_string(), // 線種
                     _ => {
                         properties.insert(group_code, value.to_string());
                     }
@@ -212,6 +210,7 @@ fn find_next_group_value(lines: &[&str], start: usize, group_code: &str) -> Opti
 }
 
 /// 2つのエンティティリストを比較する
+#[allow(dead_code)]
 pub fn compare_dxf_entities(
     go_entities: &[DxfEntity],
     rust_entities: &[DxfEntity],
@@ -261,13 +260,20 @@ pub fn compare_dxf_entities(
         }
 
         // 座標値の比較
-        compare_coordinates(&go_ent.properties, &rust_ent.properties, i, tolerance, &mut differences);
+        compare_coordinates(
+            &go_ent.properties,
+            &rust_ent.properties,
+            i,
+            tolerance,
+            &mut differences,
+        );
     }
 
     differences
 }
 
 /// 座標プロパティを比較する
+#[allow(dead_code)]
 fn compare_coordinates(
     go_props: &HashMap<i32, String>,
     rust_props: &HashMap<i32, String>,
@@ -307,9 +313,13 @@ fn compare_coordinates(
 }
 
 /// エンティティの差異
+#[allow(dead_code)]
 #[derive(Debug)]
 pub enum EntityDifference {
-    EntityCountMismatch { go: usize, rust: usize },
+    EntityCountMismatch {
+        go: usize,
+        rust: usize,
+    },
     TypeMismatch {
         index: usize,
         go_type: String,
@@ -343,16 +353,45 @@ impl std::fmt::Display for EntityDifference {
             EntityDifference::EntityCountMismatch { go, rust } => {
                 write!(f, "エンティティ数不一致: Go={}, Rust={}", go, rust)
             }
-            EntityDifference::TypeMismatch { index, go_type, rust_type } => {
-                write!(f, "エンティティ[{}] タイプ不一致: Go={}, Rust={}", index, go_type, rust_type)
+            EntityDifference::TypeMismatch {
+                index,
+                go_type,
+                rust_type,
+            } => {
+                write!(
+                    f,
+                    "エンティティ[{}] タイプ不一致: Go={}, Rust={}",
+                    index, go_type, rust_type
+                )
             }
-            EntityDifference::LayerMismatch { index, go_layer, rust_layer } => {
-                write!(f, "エンティティ[{}] レイヤー不一致: Go={}, Rust={}", index, go_layer, rust_layer)
+            EntityDifference::LayerMismatch {
+                index,
+                go_layer,
+                rust_layer,
+            } => {
+                write!(
+                    f,
+                    "エンティティ[{}] レイヤー不一致: Go={}, Rust={}",
+                    index, go_layer, rust_layer
+                )
             }
-            EntityDifference::ColorMismatch { index, go_color, rust_color } => {
-                write!(f, "エンティティ[{}] 色不一致: Go={}, Rust={}", index, go_color, rust_color)
+            EntityDifference::ColorMismatch {
+                index,
+                go_color,
+                rust_color,
+            } => {
+                write!(
+                    f,
+                    "エンティティ[{}] 色不一致: Go={}, Rust={}",
+                    index, go_color, rust_color
+                )
             }
-            EntityDifference::CoordinateMismatch { index, group_code, go_value, rust_value } => {
+            EntityDifference::CoordinateMismatch {
+                index,
+                group_code,
+                go_value,
+                rust_value,
+            } => {
                 write!(
                     f,
                     "エンティティ[{}] 座標不一致(コード{}): Go={}, Rust={}",

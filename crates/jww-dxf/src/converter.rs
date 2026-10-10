@@ -32,7 +32,7 @@ fn convert_layers(jww_doc: &JwwDocument) -> Vec<Layer> {
 
             layers.push(Layer {
                 name,
-                color: ((g_lay * 16 + lay) % 255 + 1) as i32,
+                color: ((g_lay * 16 + lay) % 255 + 1),
                 line_type: "CONTINUOUS".to_string(),
                 frozen: l.state == 0,
                 locked: l.protect != 0,
@@ -271,16 +271,16 @@ fn get_block_name(jww_doc: &JwwDocument, def_number: u32) -> String {
 /// JWW色コードをDXF ACI値にマッピングする
 fn map_color(jww_color: u16) -> i32 {
     match jww_color {
-        0 => 0,    // BYLAYER
-        1 => 4,    // JWW 水色 -> DXF cyan
-        2 => 7,    // JWW 白 -> DXF white
-        3 => 3,    // JWW 緑 -> DXF green
-        4 => 2,    // JWW 黄色 -> DXF yellow
-        5 => 6,    // JWW ピンク -> DXF magenta
-        6 => 5,    // JWW 青 -> DXF blue
-        7 => 7,    // JWW 黒/白 -> DXF white/black
-        8 => 1,    // JWW 赤 -> DXF red
-        9 => 8,    // JWW グレー -> DXF gray
+        0 => 0, // BYLAYER
+        1 => 4, // JWW 水色 -> DXF cyan
+        2 => 7, // JWW 白 -> DXF white
+        3 => 3, // JWW 緑 -> DXF green
+        4 => 2, // JWW 黄色 -> DXF yellow
+        5 => 6, // JWW ピンク -> DXF magenta
+        6 => 5, // JWW 青 -> DXF blue
+        7 => 7, // JWW 黒/白 -> DXF white/black
+        8 => 1, // JWW 赤 -> DXF red
+        9 => 8, // JWW グレー -> DXF gray
         _ => {
             if jww_color >= 100 {
                 (jww_color - 100 + 10) as i32
