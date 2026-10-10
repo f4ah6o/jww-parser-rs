@@ -38,7 +38,7 @@ fn test_valid_jww_signature() {
         data.extend_from_slice(&0u32.to_le_bytes()); // write_layer
         data.extend_from_slice(&1.0f64.to_le_bytes()); // scale
         data.extend_from_slice(&0u32.to_le_bytes()); // protect
-        // 16レイヤ分
+                                                     // 16レイヤ分
         for _ in 0..16 {
             data.extend_from_slice(&2u32.to_le_bytes()); // lay_state
             data.extend_from_slice(&0u32.to_le_bytes()); // lay_protect
@@ -56,9 +56,7 @@ fn test_valid_jww_signature() {
 
     // パディングを追加してファイルサイズを増やす（find_entity_list_offsetが探索するため）
     // 実際のJWWファイルではエンティティリストの後にもデータがある
-    for _ in 0..100 {
-        data.push(0);
-    }
+    data.extend(std::iter::repeat_n(0, 100));
 
     let result = jww_core::parse(&data);
     assert!(result.is_ok(), "parse failed: {:?}", result.err());
@@ -98,9 +96,7 @@ fn test_dxf_conversion() {
     data.extend_from_slice(b"CDataXXXX"); // class name
 
     // パディングを追加
-    for _ in 0..100 {
-        data.push(0);
-    }
+    data.extend(std::iter::repeat_n(0, 100));
 
     let jww_doc = jww_core::parse(&data).unwrap();
     let dxf_doc = jww_dxf::convert_document(&jww_doc);
@@ -139,9 +135,7 @@ fn test_dxf_to_string() {
     data.extend_from_slice(b"CDataXXXX");
 
     // パディングを追加
-    for _ in 0..100 {
-        data.push(0);
-    }
+    data.extend(std::iter::repeat_n(0, 100));
 
     let jww_doc = jww_core::parse(&data).unwrap();
     let dxf_doc = jww_dxf::convert_document(&jww_doc);

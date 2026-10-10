@@ -40,20 +40,18 @@ impl ParseResult {
 #[wasm_bindgen]
 pub fn jww_parse(data: &[u8]) -> ParseResult {
     match jww_core::parse(data) {
-        Ok(doc) => {
-            match serde_wasm_bindgen::to_value(&doc) {
-                Ok(json) => ParseResult {
-                    ok: true,
-                    data: json,
-                    error: String::new(),
-                },
-                Err(e) => ParseResult {
-                    ok: false,
-                    data: JsValue::NULL,
-                    error: format!("JSON marshal error: {}", e),
-                },
-            }
-        }
+        Ok(doc) => match serde_wasm_bindgen::to_value(&doc) {
+            Ok(json) => ParseResult {
+                ok: true,
+                data: json,
+                error: String::new(),
+            },
+            Err(e) => ParseResult {
+                ok: false,
+                data: JsValue::NULL,
+                error: format!("JSON marshal error: {}", e),
+            },
+        },
         Err(e) => ParseResult {
             ok: false,
             data: JsValue::NULL,

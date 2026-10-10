@@ -12,6 +12,7 @@ fn go_parser_path() -> PathBuf {
 }
 
 /// テストフィクスチャディレクトリ
+#[allow(dead_code)]
 fn fixtures_dir() -> PathBuf {
     PathBuf::from("/Users/fu2hito/src/jww/jww-parser-rs/tests/fixtures")
 }
@@ -22,7 +23,7 @@ fn run_go_parser(jww_path: &PathBuf) -> Result<String, String> {
     let dxf_path = temp_dir.join(format!("output_{}.dxf", std::process::id()));
 
     let output = Command::new(go_parser_path())
-        .arg("-dxf")  // DXF出力
+        .arg("-dxf") // DXF出力
         .arg("-o")
         .arg(&dxf_path)
         .arg(jww_path)
@@ -37,14 +38,13 @@ fn run_go_parser(jww_path: &PathBuf) -> Result<String, String> {
         ));
     }
 
-    std::fs::read_to_string(&dxf_path)
-        .map_err(|e| format!("DXFファイルの読み取りに失敗: {}", e))
+    std::fs::read_to_string(&dxf_path).map_err(|e| format!("DXFファイルの読み取りに失敗: {}", e))
 }
 
 /// Rust版パーサーでJWWをパースしてDXF出力を取得
 fn run_rust_parser(jww_data: &[u8]) -> Result<String, String> {
-    let jww_doc = jww_core::parse(jww_data)
-        .map_err(|e| format!("Rust版パーサーのエラー: {:?}", e))?;
+    let jww_doc =
+        jww_core::parse(jww_data).map_err(|e| format!("Rust版パーサーのエラー: {:?}", e))?;
 
     let dxf_doc = jww_dxf::convert_document(&jww_doc);
     Ok(jww_dxf::to_string(&dxf_doc))
@@ -67,7 +67,10 @@ fn test_go_parser_available() {
         .output()
         .expect("Go版パーサーの実行に失敗");
 
-    eprintln!("Go版パーサーのヘルプ出力:\n{}", String::from_utf8_lossy(&output.stdout));
+    eprintln!(
+        "Go版パーサーのヘルプ出力:\n{}",
+        String::from_utf8_lossy(&output.stdout)
+    );
 }
 
 /// 最小限のJWWデータを作成（エンティティなし）
@@ -122,9 +125,7 @@ fn create_minimal_jww_data() -> Vec<u8> {
     data.extend_from_slice(b"CDataXXXX"); // class name
 
     // パディング
-    for _ in 0..100 {
-        data.push(0);
-    }
+    data.extend(std::iter::repeat_n(0, 100));
 
     data
 }
@@ -152,27 +153,49 @@ fn test_compatibility_minimal_jww() {
     let (go_entities, go_layers) = jww_dxf::testing::parse_dxf_entities(&go_dxf);
     let (rust_entities, rust_layers) = jww_dxf::testing::parse_dxf_entities(&rust_dxf);
 
-    eprintln!("Go版: {} エンティティ, {} レイヤー", go_entities.len(), go_layers.len());
-    eprintln!("Rust版: {} エンティティ, {} レイヤー", rust_entities.len(), rust_layers.len());
+    eprintln!(
+        "Go版: {} エンティティ, {} レイヤー",
+        go_entities.len(),
+        go_layers.len()
+    );
+    eprintln!(
+        "Rust版: {} エンティティ, {} レイヤー",
+        rust_entities.len(),
+        rust_layers.len()
+    );
 
     // エンティティ数の比較（空のJWWなので0）
-    assert_eq!(go_entities.len(), rust_entities.len(), "エンティティ数が一致しません");
+    assert_eq!(
+        go_entities.len(),
+        rust_entities.len(),
+        "エンティティ数が一致しません"
+    );
 
     // レイヤー数の比較
     // 両方とも必須レイヤー"0"を含む257レイヤー
     assert_eq!(go_layers.len(), 257, "Go版のレイヤー数が257ではありません");
-    assert_eq!(rust_layers.len(), 257, "Rust版のレイヤー数が257ではありません");
+    assert_eq!(
+        rust_layers.len(),
+        257,
+        "Rust版のレイヤー数が257ではありません"
+    );
 
     // 両方の最初のレイヤーは必須レイヤー"0"
     assert_eq!(go_layers[0], "0", "Go版の最初のレイヤーが0ではありません");
-    assert_eq!(rust_layers[0], "0", "Rust版の最初のレイヤーが0ではありません");
+    assert_eq!(
+        rust_layers[0], "0",
+        "Rust版の最初のレイヤーが0ではありません"
+    );
 
     // 残りの256レイヤー名の比較（Go版もRust版も1以降がJWWレイヤー）
     for i in 0..256 {
         assert_eq!(
-            go_layers[i + 1], rust_layers[i + 1],
+            go_layers[i + 1],
+            rust_layers[i + 1],
             "レイヤー{}の名前が一致しません: Go={}, Rust={}",
-            i, go_layers[i + 1], rust_layers[i + 1]
+            i,
+            go_layers[i + 1],
+            rust_layers[i + 1]
         );
     }
 }
